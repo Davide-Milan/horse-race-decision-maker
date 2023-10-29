@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image"
-import { Card } from "../types/Card"
+import { Card, CardType } from "../types/Card"
 import { cardBack } from "../lib/cards"
 import { useState } from "react"
 import DiscardPile from "./DiscardPile"
@@ -9,17 +9,22 @@ import empty from "@/public/images/sprites/empty.png"
 interface DeckProps {
   cards : Card[]
   advanceHorse : (seme : string) => void;
+  clickable: boolean;
 }
 
 
-export default function Deck({ cards, advanceHorse } : DeckProps) {
+export default function Deck({ cards, advanceHorse, clickable=true } : DeckProps) {
   const [deck, setDeck] = useState<Card[]>(cards);
   const [drawn, setDrawn] = useState<Card[]>([]);
 
-  const draw = () => {
-    console.log(drawn, deck);
-    setDrawn((prevDrawn) => [deck[0], ...prevDrawn]);
-    setDeck((prevDeck) => prevDeck.slice(1));
+  const draw = (e : any) => {
+    if(clickable){
+      e.currentTarget.disabled = true;
+      advanceHorse(CardType[deck[0].name[0] as keyof typeof CardType])
+      setDrawn((prevDrawn) => [deck[0], ...prevDrawn]);
+      setDeck((prevDeck) => prevDeck.slice(1));
+      e.currentTarget.disabled = false;
+    }
   }
 
   return (
@@ -29,7 +34,7 @@ export default function Deck({ cards, advanceHorse } : DeckProps) {
       <Image 
         src={cardBack.data}
         alt={cardBack.alt}
-        onClick={draw}
+        onClick={(e) => draw(e)}
       />
       :
       <Image 
